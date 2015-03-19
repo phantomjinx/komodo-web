@@ -28,6 +28,7 @@ public interface Constants extends StringConstants {
     String SELECT_STAR_FROM = "SELECT * FROM";
     String LIMIT_10 = "LIMIT 10";
     String NONE = "NONE";
+    String UNDEFINED = "undefined";
     String OK_BUTTON_TXT = "Ok";
     String CANCEL_BUTTON_TXT = "Cancel";
 
@@ -97,6 +98,8 @@ public interface Constants extends StringConstants {
 
     String CSS_CLASS = "class";
     String CSS_FILL_OPACITY = "fill-opacity";
+    String CSS_WIDTH = "width";
+    String CSS_HEIGHT = "height";
 
     String HTML_XLINK_REF = "xlink:href";
     String HTML_X = "x";

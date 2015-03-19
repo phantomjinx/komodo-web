@@ -24,15 +24,13 @@ package org.komodo.web.client.panels.vdb.editor;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import org.komodo.web.client.panels.vdb.editor.diag.DiagCanvas;
-import org.komodo.web.client.panels.vdb.editor.diag.DiagNode;
-import org.komodo.web.client.resources.AppResource;
+import org.komodo.web.client.panels.vdb.editor.diag.DiagVdbVisitor;
 import org.komodo.web.share.Constants;
 import org.komodo.web.share.beans.KomodoObjectBean;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
-import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.FlowPanel;
 
 /**
@@ -90,7 +88,7 @@ public class VdbEditor extends FlowPanel implements Constants {
         setWidth(width + Unit.PX.getType());
         setHeight(height + Unit.PX.getType());
 
-        canvas = new DiagCanvas(this, css.css());
+        canvas = new DiagCanvas(this, width, height, css.css());
     }
 
     /**
@@ -99,9 +97,9 @@ public class VdbEditor extends FlowPanel implements Constants {
      * @param vdb the komodo object representing the vdb
      */
     public void setContent(KomodoObjectBean vdb) {
+
         // Set the content of the editor
-        DiagNode node = canvas.createNode(Random.nextInt(width), Random.nextInt(height));
-        node.setImage(AppResource.INSTANCE.images().diagVdb_Image());
-        node.setLabel(vdb.getName());
+        DiagVdbVisitor visitor = new DiagVdbVisitor(canvas);
+        visitor.visit(vdb);
     }
 }

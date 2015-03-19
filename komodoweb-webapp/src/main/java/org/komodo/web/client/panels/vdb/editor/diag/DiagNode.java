@@ -21,6 +21,7 @@
  */
 package org.komodo.web.client.panels.vdb.editor.diag;
 
+import org.komodo.web.client.resources.AppResource;
 import org.komodo.web.share.Constants;
 import com.github.gwtd3.api.core.Selection;
 import com.github.gwtd3.api.core.Transform;
@@ -52,17 +53,20 @@ public class DiagNode implements Constants {
     }
 
     private void update() {
-        if (image != null) {
-            Selection imgSelection = node.select(HTML_IMAGE);
-            if (imgSelection.empty())
-                imgSelection = node.append(HTML_IMAGE);
-
-            imgSelection.attr(HTML_XLINK_REF, image.getSafeUri().asString())
-                               .attr(HTML_X, 0 + Unit.PX.getType())
-                               .attr(HTML_Y, 0 + Unit.PX.getType())
-                               .attr(HTML_WIDTH, image.getWidth() + Unit.PX.getType())
-                               .attr(HTML_HEIGHT, image.getHeight() + Unit.PX.getType());
+        if (image == null) {
+            // Assign the default icon since there is no image
+            image = AppResource.INSTANCE.images().diagDefault_Image();
         }
+
+        Selection imgSelection = node.select(HTML_IMAGE);
+        if (imgSelection.empty())
+            imgSelection = node.append(HTML_IMAGE);
+
+        imgSelection.attr(HTML_XLINK_REF, image.getSafeUri().asString())
+                            .attr(HTML_X, 0 + Unit.PX.getType())
+                            .attr(HTML_Y, 0 + Unit.PX.getType())
+                            .attr(HTML_WIDTH, image.getWidth() + Unit.PX.getType())
+                            .attr(HTML_HEIGHT, image.getHeight() + Unit.PX.getType());
 
         if (label != null) {
             Selection txtSelection = node.select(HTML_TEXT);

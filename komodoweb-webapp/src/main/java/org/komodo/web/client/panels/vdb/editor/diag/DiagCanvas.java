@@ -31,14 +31,27 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class DiagCanvas implements Constants {
 
+    private final Widget parent;
+
     private final Selection svg;
+
     private final String css;
+
+    private int parentWidth;
+
+    private int parentHeight;
 
     /**
      * @param widget the widget to place the canvas on
+     * @param width the initial width of the widget
+     * @param height the initial height of the widget
      * @param css the css settings to be observed by the diagram
      */
-    public DiagCanvas(Widget widget, String css) {
+    public DiagCanvas(Widget widget, int width, int height, String css) {
+        this.parent = widget;
+        this.parentWidth = width;
+        this.parentHeight = height;
+
         // Create the svg canvas by selecting the 'div' of the widget and
         // appending an 'svg' div and inside that a 'g' div
         this.svg = D3.select(widget)
@@ -60,6 +73,20 @@ public class DiagCanvas implements Constants {
      */
     public String css() {
         return this.css;
+    }
+
+    /**
+     * @return width of canvas
+     */
+    public int getWidth() {
+        return parentWidth;
+    }
+
+    /**
+     * @return height of canvas
+     */
+    public int getHeight() {
+        return parentHeight;
     }
 
     /**
