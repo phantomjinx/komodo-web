@@ -19,11 +19,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301 USA.
  */
-package org.komodo.web.client.panels.vdb.editor.diag;
+package org.komodo.web.client.panels.vdb.editor.diag.tree;
 
+import java.util.List;
 import org.komodo.spi.repository.KomodoType;
 import org.komodo.web.client.resources.AppResource;
 import org.komodo.web.client.services.KomodoRpcService;
+import org.komodo.web.client.services.rpc.IRpcServiceInvocationHandler;
 import org.komodo.web.share.beans.KObjectBeanVisitor;
 import org.komodo.web.share.beans.KomodoObjectBean;
 import org.komodo.web.share.beans.KomodoObjectPropertyBean;
@@ -34,41 +36,82 @@ import org.modeshape.sequencer.teiid.lexicon.VdbLexicon;
  */
 public class DiagVdbVisitor implements KObjectBeanVisitor {
 
-    private final DiagCanvas canvas;
-
-    private KomodoRpcService service;
-
     private class Context {
 
-        private DiagNode parent;
+        private TreeData vdb;
+
+        private TreeData parent;
+
+        /**
+         * @return the vdb
+         */
+        public TreeData getVdb() {
+            return this.vdb;
+        }
+
+        /**
+         * @param vdb the vdbNode to set
+         */
+        public void setVdb(TreeData vdb) {
+            this.vdb = vdb;
+            canvas.setRoot(vdb);
+        }
 
         /**
          * @return the parent
          */
-        public DiagNode getParent() {
+        public TreeData getParent() {
             return this.parent;
         }
 
         /**
          * @param parent the parent to set
          */
-        public void setParent(DiagNode parent) {
+        public void setParent(TreeData parent) {
             this.parent = parent;
         }
+
     }
+
+    private final TreeCanvas canvas;
+
+    private KomodoRpcService service;
+
+    private Context context;
 
     /**
      * Create new instance
      *
      * @param canvas the canvas on which nodes/links should be added
      */
-    public DiagVdbVisitor(DiagCanvas canvas) {
+    public DiagVdbVisitor(TreeCanvas canvas) {
         this.canvas = canvas;
         this.service = KomodoRpcService.get();
+        this.context = new Context();
+    }
+
+    private void visitChildren(KomodoObjectBean kObject) {
+        IRpcServiceInvocationHandler<List<KomodoObjectBean>> handler = new IRpcServiceInvocationHandler<List<KomodoObjectBean>>() {
+            @Override
+            public void onReturn(final List<KomodoObjectBean> result) {
+                if (result.isEmpty())
+                    return;
+
+                for (KomodoObjectBean kObject: result) {
+                    kObject.accept(DiagVdbVisitor.this);
+                }
+            }
+            @Override
+            public void onError(Throwable error) {
+                //TODO
+            }
+        };
+
+        service.getKomodoNodes(kObject.getPath(), handler);
     }
 
     private void virtualDatabase(KomodoObjectBean kObject) {
-        DiagNode vdbNode = canvas.createNode(canvas.getWidth() / 2, canvas.getHeight() / 2);
+        TreeData vdbNode = new TreeData();
         vdbNode.setImage(AppResource.INSTANCE.images().diagVdb_Image());
         KomodoObjectPropertyBean nameProperty = kObject.getProperty(VdbLexicon.Vdb.NAME);
 
@@ -80,6 +123,24 @@ public class DiagVdbVisitor implements KObjectBeanVisitor {
         }
 
         vdbNode.setLabel(vdbName);
+
+        context.setVdb(vdbNode);
+        context.setParent(vdbNode);
+
+        visitChildren(kObject);
+    }
+
+    private void model(KomodoObjectBean kObject) {
+        TreeData model = new TreeData();
+        model.setImage(AppResource.INSTANCE.images().diagModel_Image());
+        model.setLabel(kObject.getName());
+
+        TreeData vdb = context.getParent();
+        if (vdb == null)
+            return;
+
+        vdb.addChild(model);
+        canvas.update();
     }
 
     @Override
@@ -89,6 +150,12 @@ public class DiagVdbVisitor implements KObjectBeanVisitor {
 
         KomodoType type = kObject.getType();
         switch (type) {
+            case VDB:
+                virtualDatabase(kObject);
+                break;
+            case MODEL:
+                model(kObject);
+                break;
             case ACCESS_PATTERN:
                 break;
             case COLUMN:
@@ -98,8 +165,6 @@ public class DiagVdbVisitor implements KObjectBeanVisitor {
             case FOREIGN_KEY:
                 break;
             case INDEX:
-                break;
-            case MODEL:
                 break;
             case PARAMETER:
                 break;
@@ -123,12 +188,7 @@ public class DiagVdbVisitor implements KObjectBeanVisitor {
                 break;
             case UNIQUE_CONSTRAINT:
                 break;
-            case UNKNOWN:
-                break;
             case USER_DEFINED_FUNCTION:
-                break;
-            case VDB:
-                virtualDatabase(kObject);
                 break;
             case VDB_CONDITION:
                 break;
@@ -150,7 +210,9 @@ public class DiagVdbVisitor implements KObjectBeanVisitor {
                 break;
             case VIRTUAL_PROCEDURE:
                 break;
+            case UNKNOWN:
             default:
+                visitChildren(kObject);
                 break;
         }
     }

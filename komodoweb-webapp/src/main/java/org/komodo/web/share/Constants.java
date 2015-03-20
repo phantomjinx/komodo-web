@@ -113,7 +113,16 @@ public interface Constants extends StringConstants {
 
     String MIDDLE = "middle";
     String NODE = "node";
+    String LINK = "link";
 
+    String NAME = "name";
+    String PARENT = "parent";
+    String NULL = "null";
+    String ICON = "icon";
+    String CHILDREN = "children";
+    
+    
+    
     /* Vdb Editor */
     String VDB_EDIT_SCROLLPANEL = "vdb-edit-scrollpanel";
     String VDB_EDITOR = "vdb-editor";

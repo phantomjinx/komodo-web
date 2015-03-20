@@ -136,4 +136,7 @@ public interface AppImages extends ClientBundle {
     @Source ("images/diagramming/vdb.png")
     ImageResource diagVdb_Image();
 
+    @Source ("images/diagramming/model.png")
+    ImageResource diagModel_Image();
+
 }

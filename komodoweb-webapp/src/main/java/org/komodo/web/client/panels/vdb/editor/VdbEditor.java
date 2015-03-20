@@ -23,14 +23,14 @@ package org.komodo.web.client.panels.vdb.editor;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
-import org.komodo.web.client.panels.vdb.editor.diag.DiagCanvas;
-import org.komodo.web.client.panels.vdb.editor.diag.DiagVdbVisitor;
+import org.komodo.web.client.panels.vdb.editor.diag.DiagramCss;
+import org.komodo.web.client.panels.vdb.editor.diag.tree.TreeCanvas;
+import org.komodo.web.client.panels.vdb.editor.diag.tree.DiagVdbVisitor;
 import org.komodo.web.share.Constants;
 import org.komodo.web.share.beans.KomodoObjectBean;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.resources.client.ClientBundle;
-import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.ui.FlowPanel;
 
 /**
@@ -53,20 +53,13 @@ public class VdbEditor extends FlowPanel implements Constants {
          * @return css for this editor
          */
         @Source("VdbEditor.css")
-        public EditorCss css();
+        public DiagramCss css();
     }
 
-    /**
-     * Editor css
-     */
-    interface EditorCss extends CssResource {
-        String css();
-    }
-
-    private DiagCanvas canvas;
+    private TreeCanvas canvas;
     private Integer width = 1024;
     private Integer height = 768;
-    private final EditorCss css;
+    private final DiagramCss css;
 
     /**
      * Constructor
@@ -88,7 +81,7 @@ public class VdbEditor extends FlowPanel implements Constants {
         setWidth(width + Unit.PX.getType());
         setHeight(height + Unit.PX.getType());
 
-        canvas = new DiagCanvas(this, width, height, css.css());
+        canvas = new TreeCanvas(this, width, height, css);
     }
 
     /**
@@ -101,5 +94,6 @@ public class VdbEditor extends FlowPanel implements Constants {
         // Set the content of the editor
         DiagVdbVisitor visitor = new DiagVdbVisitor(canvas);
         visitor.visit(vdb);
+        canvas.update();
     }
 }
